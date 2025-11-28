@@ -72,6 +72,32 @@ Common project-specific MCPs:
 - Puppeteer: `@anthropic-ai/mcp-server-puppeteer` (for web automation/testing)
 - Slack: `@modelcontextprotocol/server-slack` (for team notifications)
 
+## Documentation
+
+- **README.md** - Every project needs one: what it does, how to run, how to contribute
+- **Code comments** - Explain *why*, not *what*. Complex logic deserves explanation
+- **API docs** - Public interfaces need clear documentation
+- **.env.example** - Document all environment variables with example values (never real secrets)
+
+## Code Review
+
+When reviewing or being asked to review code, check:
+- Does it do what it claims?
+- Are there edge cases not handled?
+- Is error handling appropriate?
+- Are there security concerns?
+- Is it readable and maintainable?
+- Are there tests?
+
+## Decision Records
+
+For significant architectural decisions, create DECISIONS.md:
+- What was decided
+- Why (context, constraints, alternatives considered)
+- Consequences (tradeoffs accepted)
+
+This helps future developers (and AI) understand the codebase.
+
 ## Spec Kit Ownership
 
 Before modifying any Spec Kit artifacts, check ownership:

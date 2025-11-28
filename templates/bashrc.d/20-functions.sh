@@ -324,6 +324,36 @@ worktrees() {
 }
 
 # ============================================
+# scratch - Create temporary project
+# ============================================
+scratch() {
+    local name="scratch-$(date +%Y%m%d-%H%M%S)"
+    local dir="/tmp/$name"
+
+    mkdir -p "$dir"
+    cd "$dir"
+    git init --quiet
+
+    cat > README.md << EOF
+# Scratch: $name
+
+Temporary project for quick experiments.
+This will be lost on container restart.
+EOF
+
+    cat > .gitignore << 'EOF'
+node_modules/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+EOF
+
+    _cb_green "✓ Scratch project at $dir"
+    _cb_yellow "⚠ Temporary - will be lost on container restart"
+}
+
+# ============================================
 # codebootstrap-status - Health check
 # ============================================
 codebootstrap-status() {
