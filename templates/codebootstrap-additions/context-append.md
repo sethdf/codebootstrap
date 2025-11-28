@@ -98,11 +98,30 @@ For significant architectural decisions, create DECISIONS.md:
 
 This helps future developers (and AI) understand the codebase.
 
-## Working Style
+## Before Making Changes
+
+- **Read first** - Before modifying code, read relevant files to understand existing patterns, utilities, and conventions
+- **Verify assumptions** - Confirm files, dependencies, and APIs exist before using them. Don't assume project structure
+
+## Writing Code
 
 - **Stay focused** - Complete the requested task. Don't fix unrelated issues or add unrequested features unless asked
 - **Ask when unclear** - If requirements are ambiguous, ask clarifying questions before implementing
-- **Flag breaking changes** - When modifying public APIs, note backward compatibility impact and discuss with user before proceeding
+- **Match existing patterns** - Follow the codebase's style and conventions. Don't introduce new patterns without discussion
+- **Minimal dependencies** - Don't add packages for functionality achievable in a few lines of code
+- **Use what exists** - Check for existing utilities in the codebase before writing new ones
+- **No hallucination** - Only use APIs, methods, and features you've verified exist. When uncertain, check documentation or source
+
+## After Making Changes
+
+- **Verify it works** - Run tests or manually verify changes. Don't assume success
+- **Acknowledge errors** - If output shows errors or warnings, address them. Don't proceed silently
+- **Flag breaking changes** - When modifying public APIs, note backward compatibility impact and discuss with user
+- **Clean up** - Remove debug statements, console.logs, and commented code before committing
+
+## Session End
+
+At session end, offer to summarize what was accomplished and what tasks remain.
 
 ## Spec Kit Ownership
 

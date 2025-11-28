@@ -176,8 +176,28 @@ if [ -d ~/.bashrc.d ]; then
         [ -r "$f" ] && source "$f"
     done
 fi
+
+# Source custom user extensions if present
+if [ -f ~/.codebootstrap/custom.sh ]; then
+    source ~/.codebootstrap/custom.sh
+fi
 EOF
     echo "  ✓ Added bashrc.d sourcing to ~/.bashrc"
+fi
+
+# Create codebootstrap config directory for custom extensions
+mkdir -p ~/.codebootstrap
+if [ ! -f ~/.codebootstrap/custom.sh ]; then
+    cat > ~/.codebootstrap/custom.sh << 'EOF'
+# Custom CodeBootstrap extensions
+# Add your own aliases and functions here
+# This file is sourced automatically on shell startup
+
+# Example:
+# alias myalias='my-command'
+# myfunction() { echo "Hello"; }
+EOF
+    echo "  ✓ Created ~/.codebootstrap/custom.sh for user extensions"
 fi
 
 # ============================================

@@ -324,6 +324,78 @@ worktrees() {
 }
 
 # ============================================
+# todos - Find TODO/FIXME/HACK in codebase
+# ============================================
+todos() {
+    echo "Finding TODOs, FIXMEs, HACKs, and XXXs..."
+    echo ""
+
+    grep -rn --color=always \
+        -e "TODO" -e "FIXME" -e "HACK" -e "XXX" \
+        --include="*.py" \
+        --include="*.js" --include="*.ts" --include="*.jsx" --include="*.tsx" \
+        --include="*.go" \
+        --include="*.rs" \
+        --include="*.rb" \
+        --include="*.java" \
+        --include="*.c" --include="*.cpp" --include="*.h" \
+        --include="*.sh" \
+        --include="*.md" \
+        . 2>/dev/null | grep -v "node_modules" | grep -v ".git" | head -50
+
+    echo ""
+    echo "(Showing max 50 results)"
+}
+
+# ============================================
+# backup - Create safety branch
+# ============================================
+backup() {
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        _cb_red "Error: Not in a git repository"
+        return 1
+    fi
+
+    local branch_name="backup-$(date +%Y%m%d-%H%M%S)"
+    git branch "$branch_name"
+    _cb_green "✓ Backup branch created: $branch_name"
+    echo "  Restore with: git checkout $branch_name"
+}
+
+# ============================================
+# tree - Show project structure
+# ============================================
+tree() {
+    local depth="${1:-2}"
+
+    if command -v /usr/bin/tree &> /dev/null; then
+        /usr/bin/tree -L "$depth" -I 'node_modules|.git|__pycache__|.venv|venv|dist|build|.next|.nuxt' --dirsfirst
+    else
+        # Fallback using find
+        echo "Project structure (depth $depth):"
+        find . -maxdepth "$depth" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/.git/*" \
+            -not -path "*/__pycache__/*" \
+            -not -path "*/.venv/*" \
+            -not -name "node_modules" \
+            -not -name ".git" \
+            -not -name "__pycache__" \
+            | sort | head -50
+    fi
+}
+
+# ============================================
+# d - Git diff shortcut
+# ============================================
+alias d='git diff'
+
+# ============================================
+# ds - Git diff staged shortcut
+# ============================================
+alias ds='git diff --staged'
+
+# ============================================
 # wip - Quick work-in-progress commit
 # ============================================
 wip() {
