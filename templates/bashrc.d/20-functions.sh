@@ -324,6 +324,119 @@ worktrees() {
 }
 
 # ============================================
+# wip - Quick work-in-progress commit
+# ============================================
+wip() {
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        _cb_red "Error: Not in a git repository"
+        return 1
+    fi
+
+    git add -A
+    git commit -m "WIP"
+    _cb_green "✓ WIP commit created"
+}
+
+# ============================================
+# unwip - Undo WIP commit (keep changes)
+# ============================================
+unwip() {
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        _cb_red "Error: Not in a git repository"
+        return 1
+    fi
+
+    local last_msg=$(git log -1 --format=%s 2>/dev/null)
+    if [ "$last_msg" != "WIP" ]; then
+        _cb_yellow "Warning: Last commit is not a WIP commit"
+        read -p "Undo anyway? [y/N] " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            return 0
+        fi
+    fi
+
+    git reset HEAD~1
+    _cb_green "✓ Last commit undone (changes preserved)"
+}
+
+# ============================================
+# serve - Quick HTTP server
+# ============================================
+serve() {
+    local port="${1:-8000}"
+
+    _cb_blue "Starting HTTP server on port $port..."
+    echo "Press Ctrl+C to stop"
+    echo ""
+
+    if command -v python3 &> /dev/null; then
+        python3 -m http.server "$port"
+    elif command -v python &> /dev/null; then
+        python -m SimpleHTTPServer "$port"
+    else
+        _cb_red "Error: Python not found"
+        return 1
+    fi
+}
+
+# ============================================
+# ports - Show listening ports
+# ============================================
+ports() {
+    echo "Listening ports:"
+    echo ""
+
+    if command -v ss &> /dev/null; then
+        ss -tlnp 2>/dev/null | grep LISTEN
+    elif command -v netstat &> /dev/null; then
+        netstat -tlnp 2>/dev/null | grep LISTEN
+    elif command -v lsof &> /dev/null; then
+        lsof -i -P -n | grep LISTEN
+    else
+        _cb_red "Error: No supported tool found (ss, netstat, or lsof)"
+        return 1
+    fi
+}
+
+# ============================================
+# archive-project - Move project to archive
+# ============================================
+archive-project() {
+    local name="$1"
+
+    if [ -z "$name" ]; then
+        echo "Usage: archive-project <project-name>"
+        return 1
+    fi
+
+    local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
+    local archive_dir="$HOME/archived"
+    local project_dir="$projects_dir/$name"
+
+    if [ ! -d "$project_dir" ]; then
+        _cb_red "Error: Project not found: $project_dir"
+        return 1
+    fi
+
+    # Create archive directory
+    mkdir -p "$archive_dir"
+
+    # Archive with timestamp
+    local timestamp=$(date +%Y%m%d)
+    local archive_name="${name}-${timestamp}"
+
+    # Handle existing archive with same name
+    if [ -d "$archive_dir/$archive_name" ]; then
+        archive_name="${name}-$(date +%Y%m%d-%H%M%S)"
+    fi
+
+    mv "$project_dir" "$archive_dir/$archive_name"
+
+    _cb_green "✓ Archived to ~/archived/$archive_name"
+}
+
+# ============================================
 # scratch - Create temporary project
 # ============================================
 scratch() {

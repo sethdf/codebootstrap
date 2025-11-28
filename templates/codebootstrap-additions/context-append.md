@@ -98,6 +98,12 @@ For significant architectural decisions, create DECISIONS.md:
 
 This helps future developers (and AI) understand the codebase.
 
+## Working Style
+
+- **Stay focused** - Complete the requested task. Don't fix unrelated issues or add unrequested features unless asked
+- **Ask when unclear** - If requirements are ambiguous, ask clarifying questions before implementing
+- **Flag breaking changes** - When modifying public APIs, note backward compatibility impact and discuss with user before proceeding
+
 ## Spec Kit Ownership
 
 Before modifying any Spec Kit artifacts, check ownership:
