@@ -74,7 +74,35 @@ EOF
     local templates_dir="/workspaces/codebootstrap/templates/codebootstrap-additions"
     if [ -d "$templates_dir" ]; then
         echo "Adding CodeBootstrap configuration..."
-        cp -r "$templates_dir/." "$project_dir/"
+
+        # Copy devcontainer config
+        if [ -f "$templates_dir/devcontainer-json.json" ]; then
+            mkdir -p "$project_dir/.devcontainer"
+            cp "$templates_dir/devcontainer-json.json" "$project_dir/.devcontainer/devcontainer.json"
+        fi
+
+        # Append context to AI context files
+        if [ -f "$templates_dir/context-append.md" ]; then
+            local context_content=$(cat "$templates_dir/context-append.md")
+
+            # Append to CLAUDE.md (for Claude)
+            if [ -f "$project_dir/CLAUDE.md" ]; then
+                echo "" >> "$project_dir/CLAUDE.md"
+                echo "$context_content" >> "$project_dir/CLAUDE.md"
+            fi
+
+            # Append to AGENTS.md (for Codex)
+            if [ -f "$project_dir/AGENTS.md" ]; then
+                echo "" >> "$project_dir/AGENTS.md"
+                echo "$context_content" >> "$project_dir/AGENTS.md"
+            fi
+
+            # Append to GEMINI.md (for Gemini)
+            if [ -f "$project_dir/GEMINI.md" ]; then
+                echo "" >> "$project_dir/GEMINI.md"
+                echo "$context_content" >> "$project_dir/GEMINI.md"
+            fi
+        fi
     fi
 
     _cb_green "✓ Project created at $project_dir"
