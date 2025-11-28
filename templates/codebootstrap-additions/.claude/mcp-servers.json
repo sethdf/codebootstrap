@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "_comment": "Add project-specific MCP servers here. They will be merged with the 7 base servers.",
+    "_example_postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}"
+      }
+    }
+  }
+}

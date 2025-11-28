@@ -1,0 +1,40 @@
+{
+  "filesystem": {
+    "command": "npx",
+    "args": ["-y", "@anthropic-ai/mcp-server-filesystem", "/workspaces"],
+    "description": "File operations within workspace"
+  },
+  "memory": {
+    "command": "npx",
+    "args": ["-y", "@anthropic-ai/mcp-server-memory"],
+    "description": "Persistent knowledge graph"
+  },
+  "fetch": {
+    "command": "npx",
+    "args": ["-y", "@anthropic-ai/mcp-server-fetch"],
+    "description": "Web content retrieval"
+  },
+  "sequential-thinking": {
+    "command": "npx",
+    "args": ["-y", "@anthropic-ai/mcp-server-sequential-thinking"],
+    "description": "Complex problem solving with step-by-step reasoning"
+  },
+  "context7": {
+    "command": "npx",
+    "args": ["-y", "@upstash/context7-mcp"],
+    "description": "Library and framework documentation lookup"
+  },
+  "git": {
+    "command": "npx",
+    "args": ["-y", "@anthropic-ai/mcp-server-git", "--repository", "/workspaces"],
+    "description": "Git repository inspection"
+  },
+  "github": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-github"],
+    "env": {
+      "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+    },
+    "description": "GitHub API access for issues, PRs, repos"
+  }
+}

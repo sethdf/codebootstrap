@@ -1,0 +1,42 @@
+# Git
+.git/
+.gitignore
+
+# Dependencies (will be installed in container)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files
+.env
+.env.local
+.env*.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Documentation (not needed in container build)
+*.md
+!README.md
+
+# Specs (documentation only)
+specs/
+
+# Testing
+coverage/
