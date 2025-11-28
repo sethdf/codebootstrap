@@ -29,6 +29,7 @@ When implementing features or fixing bugs:
 2. **Test before commit** - Run the test suite before committing changes; do not commit if tests fail
 3. **Cover edge cases** - Include tests for error conditions, boundary values, and invalid inputs
 4. **Match project conventions** - Use the existing test framework and patterns in this project
+5. **Prefer headless testing** - When testing UIs, browsers, or visual components, use headless mode by default (e.g., Puppeteer headless, Playwright headless, pytest with headless Chrome). This enables testing in containerized/CI environments without displays.
 
 Test file locations (detect from project structure):
 - JavaScript/TypeScript: `__tests__/`, `*.test.ts`, `*.spec.ts`
