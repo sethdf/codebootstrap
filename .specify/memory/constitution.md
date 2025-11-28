@@ -1,50 +1,55 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# CodeBootstrap Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Container-First
+All development happens inside containers. The host machine only needs Docker and a code editor. No tools installed directly on host except Docker and gh CLI.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. AI Tool Agnostic
+Support all major AI coding assistants equally: Claude Code, Codex CLI, Gemini CLI. Same MCP servers, same shell helpers, same experience.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. YOLO Mode Default
+AI tools run without permission prompts by default. Developers opt into this workflow - trust the tools, move fast.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Spec Kit Integration
+New projects use Spec Kit for structured development. CodeBootstrap adds container and MCP support on top.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Simplicity
+Minimal host setup. Single devcontainer config works locally and in Codespaces. No complex configuration required.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Safety Requirements
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Prohibited Destructive Operations
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**NEVER run these commands** - they can cause irreversible data loss:
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- `git gc --prune=now` - Permanently deletes unreachable objects
+- `git reflog expire --expire=now --all` - Destroys recovery history
+- `git filter-branch` - Rewrites history (use only with explicit user approval)
+- `git reset --hard` on shared branches - Loses uncommitted work
+- `git push --force` to main/master - Overwrites shared history
+- `rm -rf .git` - Destroys entire repository
+- `git clean -fdx` without confirmation - Deletes untracked files permanently
+
+**Before any history-rewriting operation**:
+1. Confirm with the user that they understand the risks
+2. Ensure there's a backup (push to remote first)
+3. Never combine multiple destructive operations
+
+**Safe alternatives**:
+- Use `git revert` instead of `git reset --hard` for undoing commits
+- Use `git stash` instead of discarding changes
+- Use `git push --force-with-lease` instead of `--force` (fails if remote changed)
+
+## Development Workflow
+
+1. Use Spec Kit to plan features (`/speckit.plan`, `/speckit.tasks`)
+2. Implement inside container
+3. Test with `codebootstrap-status`
+4. Commit only when tests pass
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs development of CodeBootstrap itself. Child projects created with `new-project` get their own vanilla Spec Kit plus CodeBootstrap additions.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-01-28 | **Last Amended**: 2025-01-28
