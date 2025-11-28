@@ -81,6 +81,11 @@ EOF
             cp "$templates_dir/devcontainer-json.json" "$project_dir/.devcontainer/devcontainer.json"
         fi
 
+        # Copy .editorconfig
+        if [ -f "$templates_dir/editorconfig" ]; then
+            cp "$templates_dir/editorconfig" "$project_dir/.editorconfig"
+        fi
+
         # Append context to AI context files
         if [ -f "$templates_dir/context-append.md" ]; then
             local context_content=$(cat "$templates_dir/context-append.md")

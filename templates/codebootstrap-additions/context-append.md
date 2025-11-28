@@ -1,4 +1,24 @@
 
+## Commit Conventions
+
+Use conventional commits format:
+- `feat:` new feature
+- `fix:` bug fix
+- `docs:` documentation only
+- `refactor:` code change that neither fixes nor adds
+- `test:` adding or updating tests
+- `chore:` maintenance, dependencies, config
+
+Keep commits atomic - one logical change per commit. Write meaningful commit messages that explain *why*, not just *what*.
+
+## Security
+
+- **Never commit secrets** - No .env files, API keys, passwords, or credentials in git
+- **OWASP awareness** - Check for top 10 vulnerabilities (injection, XSS, CSRF, etc.)
+- **Parameterized queries** - Never use string concatenation for SQL/database queries
+- **Input validation** - Validate and sanitize all user input at system boundaries
+- **Dependency hygiene** - Pin versions, check for known vulnerabilities, update regularly
+
 ## Prohibited Destructive Operations
 
 **NEVER run these commands** - they can cause irreversible data loss:
