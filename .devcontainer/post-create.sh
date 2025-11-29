@@ -13,10 +13,11 @@ WORKSPACE_DIR="${PWD}"
 TEMPLATES_DIR="${WORKSPACE_DIR}/templates"
 
 # ============================================
-# Create projects directory
+# Create projects directory and fix permissions
 # ============================================
 echo "Creating projects directory..."
 mkdir -p /workspaces/projects
+sudo chown -R vscode:vscode /workspaces/projects
 
 # ============================================
 # MCP Configuration for Claude Code
