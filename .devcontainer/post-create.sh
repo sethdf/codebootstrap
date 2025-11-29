@@ -16,7 +16,7 @@ TEMPLATES_DIR="${WORKSPACE_DIR}/templates"
 # Create projects directory
 # ============================================
 echo "Creating projects directory..."
-mkdir -p ~/projects
+mkdir -p /workspaces/projects
 
 # ============================================
 # MCP Configuration for Claude Code
