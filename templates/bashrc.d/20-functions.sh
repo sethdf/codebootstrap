@@ -134,6 +134,54 @@ EOF
 }
 
 # ============================================
+# clone-project - Clone a GitHub project locally
+# ============================================
+clone-project() {
+    local repo="$1"
+
+    if [ -z "$repo" ]; then
+        echo "Usage: clone-project <github-url-or-user/repo>"
+        echo ""
+        echo "Examples:"
+        echo "  clone-project https://github.com/user/repo"
+        echo "  clone-project user/repo"
+        return 1
+    fi
+
+    # Convert user/repo format to full URL
+    if [[ ! "$repo" =~ ^https?:// ]]; then
+        repo="https://github.com/$repo"
+    fi
+
+    # Extract repo name from URL
+    local name=$(basename "$repo" .git)
+
+    local projects_dir="${PROJECTS_DIR:-$HOME/projects}"
+    local project_dir="$projects_dir/$name"
+
+    if [ -d "$project_dir" ]; then
+        _cb_red "Error: Directory already exists: $project_dir"
+        echo "  Use: cd $project_dir"
+        return 1
+    fi
+
+    echo "Cloning $repo..."
+    git clone "$repo" "$project_dir"
+
+    if [ $? -ne 0 ]; then
+        _cb_red "Error: Clone failed"
+        return 1
+    fi
+
+    cd "$project_dir"
+
+    _cb_green "✓ Project cloned to $project_dir"
+    echo ""
+    echo "Next steps:"
+    echo "  claude   # or codex, gemini"
+}
+
+# ============================================
 # quick-project - Create minimal project
 # ============================================
 quick-project() {
