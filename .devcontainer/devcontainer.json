@@ -27,5 +27,7 @@
     }
   },
   "forwardPorts": [],
-  "mounts": []
+  "mounts": [
+    "source=codebootstrap-projects,target=/workspaces/projects,type=volume"
+  ]
 }
