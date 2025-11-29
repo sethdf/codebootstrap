@@ -33,9 +33,8 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv (fast Python package manager)
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/bash.bashrc
+# Install uv system-wide (fast Python package manager)
+RUN curl -LsSf https://astral.sh/uv/install.sh | env CARGO_HOME=/usr/local UV_INSTALL_DIR=/usr/local/bin sh
 
 # ============================================
 # AI Coding Tools
@@ -51,10 +50,11 @@ RUN npm install -g @openai/codex
 RUN npm install -g @google/gemini-cli
 
 # ============================================
-# Spec Kit CLI
+# Spec Kit CLI (installed via uv for vscode user)
 # ============================================
-# Note: Using pip for now; update package name when available
-# RUN pip3 install specify-cli --break-system-packages
+USER vscode
+RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+USER root
 
 # ============================================
 # Default user setup
