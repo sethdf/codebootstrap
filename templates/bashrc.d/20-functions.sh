@@ -139,13 +139,55 @@ EOF
 clone-project() {
     local repo="$1"
 
+    # If no argument, show interactive list
     if [ -z "$repo" ]; then
-        echo "Usage: clone-project <github-url-or-user/repo>"
+        if ! command -v gh &> /dev/null; then
+            _cb_red "Error: gh CLI not installed"
+            return 1
+        fi
+
+        if ! gh auth status &> /dev/null; then
+            _cb_red "Error: gh not authenticated"
+            echo "  Run: gh auth login --web"
+            return 1
+        fi
+
+        echo "Fetching your GitHub repositories..."
         echo ""
-        echo "Examples:"
-        echo "  clone-project https://github.com/user/repo"
-        echo "  clone-project user/repo"
-        return 1
+
+        # Get list of repos
+        local repos
+        repos=$(gh repo list --limit 50 --json nameWithOwner,description,updatedAt \
+            --template '{{range .}}{{.nameWithOwner}}|{{.description}}{{"\n"}}{{end}}')
+
+        if [ -z "$repos" ]; then
+            _cb_yellow "No repositories found"
+            return 1
+        fi
+
+        # Display numbered list
+        local i=1
+        local repo_array=()
+        while IFS='|' read -r name desc; do
+            repo_array+=("$name")
+            printf "  %2d) %-30s %s\n" "$i" "$name" "${desc:0:40}"
+            ((i++))
+        done <<< "$repos"
+
+        echo ""
+        read -p "Select repo number (or q to quit): " selection
+
+        if [[ "$selection" == "q" ]]; then
+            return 0
+        fi
+
+        if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -gt "${#repo_array[@]}" ]; then
+            _cb_red "Invalid selection"
+            return 1
+        fi
+
+        repo="${repo_array[$((selection-1))]}"
+        echo ""
     fi
 
     # Convert user/repo format to full URL
