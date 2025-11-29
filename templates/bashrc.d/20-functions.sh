@@ -369,7 +369,7 @@ tree() {
     local depth="${1:-2}"
 
     if command -v /usr/bin/tree &> /dev/null; then
-        /usr/bin/tree -L "$depth" -I 'node_modules|.git|__pycache__|.venv|venv|dist|build|.next|.nuxt' --dirsfirst
+        /usr/bin/tree -a -L "$depth" -I '.git|node_modules|__pycache__|.venv|venv|dist|build|.next|.nuxt' --dirsfirst
     else
         # Fallback using find
         echo "Project structure (depth $depth):"
