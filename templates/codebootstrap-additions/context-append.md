@@ -116,8 +116,11 @@ This helps future developers (and AI) understand the codebase.
 
 - **Verify it works** - Run tests or manually verify changes. Don't assume success
 - **Acknowledge errors** - If output shows errors or warnings, address them. Don't proceed silently
+- **Explain errors clearly** - When errors occur, explain what went wrong, why it happened, and how to fix it
 - **Flag breaking changes** - When modifying public APIs, note backward compatibility impact and discuss with user
 - **Clean up** - Remove debug statements, console.logs, and commented code before committing
+- **Commit incrementally** - For long tasks, commit working increments. Don't wait until everything is done
+- **Revert on failure** - If changes break things, revert to last working state before trying alternatives
 
 ## Session End
 

@@ -396,6 +396,37 @@ alias d='git diff'
 alias ds='git diff --staged'
 
 # ============================================
+# cm - Quick commit with message
+# ============================================
+cm() {
+    if [ -z "$*" ]; then
+        echo "Usage: cm <commit message>"
+        return 1
+    fi
+
+    git add -A
+    git commit -m "$*"
+}
+
+# ============================================
+# today - Show today's git activity
+# ============================================
+today() {
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        _cb_red "Error: Not in a git repository"
+        return 1
+    fi
+
+    echo "Today's commits:"
+    echo ""
+    git log --oneline --since="midnight" --author="$(git config user.name)" 2>/dev/null
+
+    local count=$(git log --oneline --since="midnight" --author="$(git config user.name)" 2>/dev/null | wc -l)
+    echo ""
+    echo "$count commit(s) today"
+}
+
+# ============================================
 # wip - Quick work-in-progress commit
 # ============================================
 wip() {
