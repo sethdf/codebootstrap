@@ -1,6 +1,6 @@
 #!/bin/bash
 # host-setup.sh - Minimal host setup for CodeBootstrap
-# Installs only Docker and GitHub CLI
+# Installs Docker, GitHub CLI, and Node.js
 # Run with: curl -fsSL <url>/host-setup.sh | bash
 
 set -e
@@ -167,6 +167,46 @@ install_gh() {
 }
 
 # ============================================
+# Node.js installation (for devcontainer CLI)
+# ============================================
+install_nodejs() {
+    local os="$1"
+
+    # Check if already installed
+    if command -v node &> /dev/null; then
+        local version=$(node --version)
+        success "Node.js already installed: $version"
+        return 0
+    fi
+
+    info "Installing Node.js..."
+
+    case "$os" in
+        macos)
+            if command -v brew &> /dev/null; then
+                brew install node
+            else
+                warn "Homebrew not found. Please install Node.js manually from https://nodejs.org"
+                return 1
+            fi
+            ;;
+        ubuntu|debian)
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            ;;
+        fedora|rhel|centos)
+            curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+            sudo dnf install -y nodejs
+            ;;
+        *)
+            error "Unsupported OS: $os. Please install Node.js manually from https://nodejs.org"
+            ;;
+    esac
+
+    success "Node.js installed"
+}
+
+# ============================================
 # Main
 # ============================================
 main() {
@@ -178,6 +218,7 @@ main() {
     echo "This script installs:"
     echo "  • Docker (for running devcontainers)"
     echo "  • GitHub CLI (for authentication)"
+    echo "  • Node.js (for devcontainer CLI)"
     echo "  • CLI shortcuts (cb, cb-start, cb-stop)"
     echo ""
 
@@ -197,6 +238,11 @@ main() {
 
     # Install GitHub CLI
     install_gh "$os"
+
+    echo ""
+
+    # Install Node.js
+    install_nodejs "$os"
 
     echo ""
 
@@ -252,6 +298,14 @@ main() {
         fi
     else
         error "GitHub CLI: Not installed"
+    fi
+
+    # Node.js status
+    if command -v node &> /dev/null; then
+        local node_version=$(node --version)
+        success "Node.js: $node_version"
+    else
+        error "Node.js: Not installed"
     fi
 
     echo ""
