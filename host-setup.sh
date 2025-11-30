@@ -346,7 +346,7 @@ cb() {
         cd ~/codebootstrap
         if ! command -v devcontainer &> /dev/null; then
             echo "Installing devcontainer CLI..."
-            npm install -g @devcontainers/cli
+            sudo npm install -g @devcontainers/cli
         fi
         devcontainer up --workspace-folder .
         container=$(docker ps -qf "name=codebootstrap")
@@ -375,7 +375,7 @@ cb-start() {
         echo "Starting CodeBootstrap container..."
         cd ~/codebootstrap
         if ! command -v devcontainer &> /dev/null; then
-            npm install -g @devcontainers/cli
+            sudo npm install -g @devcontainers/cli
         fi
         devcontainer up --workspace-folder .
         echo "Container started. Use 'cb' to enter."
