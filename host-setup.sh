@@ -328,23 +328,31 @@ main() {
 # CodeBootstrap CLI shortcuts (for SSH/mobile access)
 # ============================================
 
-# cb - Enter the CodeBootstrap container (starts if needed)
+# cb - Enter the CodeBootstrap container with persistent tmux session
 cb() {
+    local container=$(docker ps -qf "name=codebootstrap")
+    if [ -z "$container" ]; then
+        echo "Container not running. Starting..."
+        cd ~/codebootstrap
+        if ! command -v devcontainer &> /dev/null; then
+            echo "Installing devcontainer CLI..."
+            npm install -g @devcontainers/cli
+        fi
+        devcontainer up --workspace-folder .
+        container=$(docker ps -qf "name=codebootstrap")
+    fi
+    # Attach to existing tmux session or create new one
+    # -A = attach if exists, create if not
+    docker exec -it "$container" tmux new-session -A -s dev
+}
+
+# cb-raw - Enter container without tmux (for debugging)
+cb-raw() {
     local container=$(docker ps -qf "name=codebootstrap")
     if [ -n "$container" ]; then
         docker exec -it "$container" bash
     else
-        echo "Container not running. Starting..."
-        cd ~/codebootstrap
-        if command -v devcontainer &> /dev/null; then
-            devcontainer up --workspace-folder .
-            devcontainer exec --workspace-folder . bash
-        else
-            echo "Installing devcontainer CLI..."
-            npm install -g @devcontainers/cli
-            devcontainer up --workspace-folder .
-            devcontainer exec --workspace-folder . bash
-        fi
+        echo "Container not running. Use 'cb' to start."
     fi
 }
 

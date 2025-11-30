@@ -631,10 +631,13 @@ These commands are installed on your **host machine** by `host-setup.sh`:
 
 | Command | Description |
 |---------|-------------|
-| `cb` | Enter container (starts it if needed) |
+| `cb` | Enter container with persistent tmux session |
+| `cb-raw` | Enter container without tmux (debugging) |
 | `cb-start` | Start container in background |
 | `cb-stop` | Stop the container |
 | `cb-status` | Check if container is running |
+
+**Persistent sessions**: `cb` automatically uses tmux. If you disconnect (close app, lose signal), your session continues running. Just `cb` again to reconnect exactly where you left off.
 
 ### Container Welcome Message
 
@@ -697,18 +700,11 @@ crontab -e
 - Set up SSH key in your iOS app to avoid typing passwords
 - Use Tailscale MagicDNS for short hostnames
 
-**Session persistence:**
-- Consider running `tmux` or `screen` inside the container
-- If your SSH disconnects, your Claude session continues
-- Reconnect and `tmux attach` to resume
-
-```bash
-# Inside container - start a tmux session
-tmux new -s dev
-
-# If disconnected, reattach
-tmux attach -t dev
-```
+**Session persistence (automatic!):**
+- `cb` uses tmux automatically - no setup needed
+- If you disconnect, everything keeps running
+- Just run `cb` again to reconnect instantly
+- Your Claude session, open files, running processes - all preserved
 
 **Quick project access:**
 ```bash
@@ -716,6 +712,23 @@ cb                    # Enter container
 p my-project         # Jump to project
 c                    # Start Claude
 ```
+
+### Tmux Quick Reference
+
+Prefix key is `Ctrl+a` (easier on mobile than default `Ctrl+b`).
+
+| Keys | Action |
+|------|--------|
+| `Ctrl+a` then `\|` | Split vertically |
+| `Ctrl+a` then `-` | Split horizontally |
+| `Ctrl+a` then `h/j/k/l` | Navigate panes (vim-style) |
+| `Alt+Arrow` | Navigate panes (no prefix needed) |
+| `Ctrl+a` then `d` | Detach (exit but keep running) |
+| `Ctrl+a` then `c` | New window |
+| `Ctrl+a` then `n/p` | Next/previous window |
+| `Ctrl+a` then `x` | Kill pane |
+
+Mouse is enabled - click to select panes, scroll to see history.
 
 ---
 

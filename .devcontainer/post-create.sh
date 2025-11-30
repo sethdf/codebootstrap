@@ -202,6 +202,17 @@ EOF
 fi
 
 # ============================================
+# Tmux Configuration (for persistent sessions)
+# ============================================
+echo "Installing tmux configuration..."
+if [ -f "${TEMPLATES_DIR}/tmux.conf" ]; then
+    cp "${TEMPLATES_DIR}/tmux.conf" ~/.tmux.conf
+    echo "  ✓ Tmux config installed to ~/.tmux.conf"
+else
+    echo "  ⚠ No tmux.conf template found, skipping..."
+fi
+
+# ============================================
 # Default Spec Kit ownership (claude as default)
 # ============================================
 echo "Setting up Spec Kit ownership..."
