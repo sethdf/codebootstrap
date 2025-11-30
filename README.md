@@ -5,83 +5,69 @@ A container-first development environment with AI coding tools pre-configured.
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           YOUR HOST MACHINE                                  │
-│                     (macOS, Windows, or Linux)                              │
-│                                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │    Docker    │  │  GitHub CLI  │  │   VS Code    │  │ Dev Container│    │
-│  │   Desktop    │  │     (gh)     │  │              │  │  Extension   │    │
-│  └──────┬───────┘  └──────────────┘  └──────┬───────┘  └──────────────┘    │
-│         │                                    │                              │
-│         │         Installed by host-setup.sh │                              │
-└─────────┼────────────────────────────────────┼──────────────────────────────┘
-          │                                    │
-          │  runs                    connects  │
-          │                                    │
-          ▼                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        DOCKER CONTAINER                                      │
-│                    (Your actual dev environment)                            │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         AI CODING TOOLS                              │   │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │   │
-│  │  │ Claude Code  │  │  Codex CLI   │  │  Gemini CLI  │              │   │
-│  │  │     (c)      │  │   (codex)    │  │   (gemini)   │              │   │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘              │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         MCP SERVERS (7)                              │   │
-│  │  filesystem │ memory │ fetch │ sequential-thinking │ context7 │ ... │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         DEV TOOLS                                    │   │
-│  │  Node.js 20 │ Python 3.12 │ uv │ git │ gh │ Spec Kit CLI           │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    /workspaces/projects/          (Docker Volume)    │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐                          │   │
-│  │  │ project1 │  │ project2 │  │ project3 │   ← Persists across      │   │
-│  │  └──────────┘  └──────────┘  └──────────┘     container rebuilds   │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                    YOUR LOCAL MACHINE (Windows/macOS)                   │
+│                                                                         │
+│   VS Code + Remote-SSH + Dev Containers extensions                     │
+│   (Install these yourself)                                             │
+│                                                                         │
+└────────────────────────┬───────────────────────────────────────────────┘
+                         │ SSH or local Docker
+                         ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│              HOST MACHINE (Linux server, macOS, or WSL)                 │
+│                                                                         │
+│   Docker + GitHub CLI + cb commands    ← Installed by host-setup.sh    │
+│                                                                         │
+│   ┌────────────────────────────────────────────────────────────────┐   │
+│   │                    DOCKER CONTAINER                             │   │
+│   │                                                                 │   │
+│   │   AI Tools: Claude Code, Codex CLI, Gemini CLI                 │   │
+│   │   MCP Servers: filesystem, memory, fetch, git, github, etc.    │   │
+│   │   Dev Tools: Node.js 20, Python 3.12, uv, Spec Kit CLI         │   │
+│   │                                                                 │   │
+│   │   /workspaces/projects/  ← Docker volume (persists rebuilds)   │   │
+│   │                                                                 │   │
+│   └────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Quick Start (New Machine)
+## Quick Start
 
-### One-Liner Setup
-
-Run this single command on a fresh machine:
+### On the Host Machine (Linux server, macOS, or WSL)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/sethdf/codebootstrap/main/host-setup.sh | bash
 ```
 
-**What happens:**
-1. Detects your OS (macOS, Ubuntu, Fedora, etc.)
-2. Installs Docker (or tells you to install Docker Desktop on macOS/Windows)
-3. Installs GitHub CLI (`gh`)
-4. Installs VS Code
-5. Clones CodeBootstrap to `~/codebootstrap`
-6. Installs the Dev Containers extension
-7. Opens VS Code in the codebootstrap folder
+**What it installs:**
+1. Docker (or prompts for Docker Desktop on macOS/Windows)
+2. GitHub CLI (`gh`)
+3. CLI shortcuts (`cb`, `cb-start`, `cb-stop`, `cb-status`)
+4. Clones CodeBootstrap to `~/codebootstrap`
 
-### After the Script Completes
+**After the script:**
+```bash
+# Log out and back in (for docker group), then:
+cb    # Starts container and enters tmux session
+```
 
-1. **VS Code opens** with the codebootstrap folder
-2. **Click "Reopen in Container"** when prompted (bottom-right popup)
-3. **Wait ~2-5 minutes** for the container to build (first time only)
-4. **Authenticate AI tools** (one-time):
+### On Your Local Machine (Windows/macOS)
+
+Install these yourself:
+1. **VS Code** from https://code.visualstudio.com/
+2. **Remote-SSH extension** (for remote servers)
+3. **Dev Containers extension** (for container access)
+
+### First Time in Container
+
+1. **Authenticate AI tools** (one-time):
    ```bash
    claude          # Opens browser for Anthropic OAuth
    codex auth      # Opens browser for OpenAI OAuth
    gemini auth     # Opens browser for Google OAuth
    ```
-5. **Start working!**
+2. **Start working!**
    ```bash
    new-project my-app    # Create a new project
    # OR
@@ -100,32 +86,28 @@ curl -fsSL https://raw.githubusercontent.com/sethdf/codebootstrap/main/host-setu
 
 | What Gets Installed | Where | Why |
 |---------------------|-------|-----|
-| Docker | Host OS | Runs the dev container |
-| GitHub CLI | Host OS | Authentication with GitHub |
-| VS Code | Host OS | Your editor (runs on host, connects to container) |
-| Dev Containers ext | VS Code | Enables "Reopen in Container" |
+| Docker | Host machine | Runs the dev container |
+| GitHub CLI | Host machine | Authentication with GitHub |
+| cb commands | Host ~/.bashrc | Quick container access |
 | CodeBootstrap repo | ~/codebootstrap | The container definition |
 
-### Step 2: Open in Container
+### Step 2: Enter the Container
 
-When VS Code opens, you'll see a popup:
-
-```
-Folder contains a Dev Container configuration file.
-[Reopen in Container]  [Don't Show Again]
+**Option A: CLI (SSH, mobile, terminal)**
+```bash
+cb    # Starts container if needed, enters tmux session
 ```
 
-Click **"Reopen in Container"**.
+**Option B: VS Code (from your local Windows/Mac)**
+1. Connect via Remote-SSH to your host machine
+2. Open `~/codebootstrap`
+3. Click **"Reopen in Container"**
 
-**What happens:**
-1. Docker builds the container image (downloads Node, Python, AI tools, etc.)
-2. Mounts your code into the container
-3. Runs `post-create.sh` which:
-   - Configures MCP servers for Claude, Codex, and Gemini
-   - Installs shell helpers (aliases, functions)
-   - Sets up Spec Kit ownership
-4. VS Code reconnects, now running INSIDE the container
-5. Terminal opens with all tools available
+**What happens on first run:**
+1. Docker builds the container image (~2-5 min first time)
+2. Mounts code and projects volume
+3. Runs `post-create.sh` - configures MCP servers, shell helpers
+4. You're inside the container with all tools ready
 
 ### Step 3: Authenticate AI Tools (One-Time)
 
@@ -438,10 +420,13 @@ Create `.claude/mcp-servers.json` in your project:
 
 ## Requirements
 
-### Host Machine
-- Docker Desktop (macOS/Windows) or Docker Engine (Linux)
-- VS Code with Dev Containers extension
+### Host Machine (where CodeBootstrap runs)
+- Docker Engine (Linux) or Docker Desktop (macOS/Windows)
 - GitHub account
+
+### Your Local Machine (where you code from)
+- VS Code with Remote-SSH and Dev Containers extensions
+- Or just an SSH client for CLI-only access (mobile)
 
 ### AI Tool Accounts
 - **Claude**: Anthropic account (Claude Pro or Team recommended)

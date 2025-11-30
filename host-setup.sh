@@ -124,50 +124,6 @@ install_docker() {
 }
 
 # ============================================
-# VS Code installation
-# ============================================
-install_vscode() {
-    local os="$1"
-
-    # Check if already installed
-    if command -v code &> /dev/null; then
-        success "VS Code already installed"
-        return 0
-    fi
-
-    info "Installing VS Code..."
-
-    case "$os" in
-        macos)
-            if command -v brew &> /dev/null; then
-                brew install --cask visual-studio-code
-            else
-                warn "Please install VS Code manually from: https://code.visualstudio.com/"
-                return 1
-            fi
-            ;;
-        ubuntu|debian)
-            sudo mkdir -p /etc/apt/keyrings
-            wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/packages.microsoft.gpg > /dev/null
-            echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
-            sudo apt-get update
-            sudo apt-get install -y code
-            ;;
-        fedora|rhel|centos)
-            sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-            echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
-            sudo dnf install -y code
-            ;;
-        *)
-            warn "Please install VS Code manually from: https://code.visualstudio.com/"
-            return 1
-            ;;
-    esac
-
-    success "VS Code installed"
-}
-
-# ============================================
 # GitHub CLI installation
 # ============================================
 install_gh() {
@@ -222,7 +178,7 @@ main() {
     echo "This script installs:"
     echo "  • Docker (for running devcontainers)"
     echo "  • GitHub CLI (for authentication)"
-    echo "  • VS Code (with Dev Containers extension)"
+    echo "  • CLI shortcuts (cb, cb-start, cb-stop)"
     echo ""
 
     local os=$(detect_os)
@@ -241,11 +197,6 @@ main() {
 
     # Install GitHub CLI
     install_gh "$os"
-
-    echo ""
-
-    # Install VS Code
-    install_vscode "$os"
 
     echo ""
 
@@ -405,30 +356,18 @@ HOSTEOF
     echo "Setup Complete!"
     echo "========================================"
     echo ""
-
-    # Check if VS Code is available
-    if command -v code &> /dev/null; then
-        # Install Dev Containers extension
-        info "Installing VS Code Dev Containers extension..."
-        code --install-extension ms-vscode-remote.remote-containers --force 2>/dev/null
-        success "Dev Containers extension installed"
-
-        echo ""
-        echo "Opening VS Code..."
-        echo ""
-        echo "When VS Code opens, click 'Reopen in Container'"
-        echo ""
-        cd "$codebootstrap_dir" && code .
-    else
-        warn "VS Code not found. Install it from: https://code.visualstudio.com/"
-        echo ""
-        echo "After installing VS Code with Dev Containers extension:"
-        echo ""
-        echo "    cd $codebootstrap_dir"
-        echo "    code ."
-        echo ""
-        echo "Then click 'Reopen in Container' when prompted"
-    fi
+    echo "Next steps:"
+    echo ""
+    echo "  1. Log out and back in (for docker group)"
+    echo "  2. Run: cb"
+    echo ""
+    echo "This will start the CodeBootstrap container and drop you into a tmux session."
+    echo ""
+    echo "For VS Code access (from your local machine):"
+    echo "  1. Install VS Code + Remote-SSH extension on your Windows/Mac"
+    echo "  2. Connect to this machine via Remote-SSH"
+    echo "  3. Open ~/codebootstrap and 'Reopen in Container'"
+    echo ""
 }
 
 main "$@"
