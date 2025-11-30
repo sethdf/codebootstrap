@@ -45,6 +45,93 @@ Exception: If push fails due to conflicts, inform the user and suggest running `
 - **Parameterized queries** - Never use string concatenation for SQL/database queries
 - **Input validation** - Validate and sanitize all user input at system boundaries
 - **Dependency hygiene** - Pin versions, check for known vulnerabilities, update regularly
+- **Password storage** - Never store plain text; use bcrypt, argon2, or similar
+- **Session security** - HttpOnly, Secure, SameSite cookies; proper timeouts
+- **HTTPS only** - No HTTP for anything sensitive; no mixed content
+- **File uploads** - Validate type, size, and sanitize filenames; never trust client
+- **Error exposure** - Never expose stack traces, internal paths, or system info to users
+
+## Code Loss Prevention (CRITICAL)
+
+**Your work may be accessed from mobile devices that can disconnect at any time. Prevent data loss:**
+
+- **Commit working increments** - Don't wait for perfection; commit when code works
+- **Backup before risky operations** - Run `backup` before major refactors or migrations
+- **Save before fixing** - If errors occur, commit working changes before attempting fixes
+- **Never abandon work** - Don't discard uncommitted changes without explicit user approval
+- **Report push failures** - If push fails, inform user immediately; local commit is still safe
+- **Pull before starting** - Run `sync` at session start to avoid conflicts later
+
+## File Operations Safety
+
+- **Read before overwrite** - Always read files before modifying to understand existing code
+- **Confirm bulk deletes** - Before deleting multiple files, list them and confirm with user
+- **Atomic writes** - For critical files, write to temp file then move (prevents corruption)
+- **Stay in project** - Never delete or modify files outside the project directory
+- **Git everything** - All file changes should be tracked in git for recovery
+- **Verify paths** - Double-check file paths before write/delete operations
+
+## Database Safety
+
+- **Migrations only** - Schema changes MUST use migration files, never manual SQL
+- **No raw DDL** - Never run ALTER, DROP, TRUNCATE directly; always through migrations
+- **Transactions** - Wrap multi-step data operations in transactions
+- **WHERE clauses** - For UPDATE/DELETE, verify WHERE clause matches expected rows before executing
+- **Backup first** - Before destructive migrations, ensure database backup exists
+- **Test migrations** - Run migrations on test data before production
+
+## Error Handling
+
+- **Never swallow errors** - Handle errors explicitly; silent failures cause debugging nightmares
+- **Context in errors** - Include what failed, why, and how to fix in error messages
+- **Graceful degradation** - External service failures shouldn't crash the whole app
+- **Timeouts required** - All external calls (APIs, databases) need timeouts
+- **Retry with backoff** - For transient failures, retry with exponential backoff
+- **Consistent state** - On failure, leave system in a consistent, recoverable state
+
+## Logging Best Practices
+
+- **Log important events** - Authentication, authorization failures, key business operations
+- **NEVER log secrets** - No passwords, tokens, API keys, or PII in logs
+- **Include context** - Timestamps, request IDs, user IDs (if not PII-sensitive)
+- **Appropriate levels** - DEBUG for development, INFO for operations, ERROR for failures
+- **Structured format** - JSON logging preferred for parseability
+
+## Dependency Management
+
+- **Commit lock files** - package-lock.json, yarn.lock, Cargo.lock, etc. MUST be committed
+- **Check vulnerabilities** - Before adding packages, check for known CVEs
+- **Prefer established** - Choose well-maintained, widely-used packages over obscure ones
+- **Minimize deps** - Don't add packages for trivial functionality (a few lines of code)
+- **Pin versions** - Use exact versions or tight ranges; avoid `*` or `latest`
+- **Audit regularly** - Run `npm audit`, `pip-audit`, etc. periodically
+
+## Performance Awareness
+
+- **N+1 queries** - Batch database queries; use eager loading for related data
+- **Pagination** - Never return unbounded result sets; always paginate
+- **Async I/O** - Use async/await for network, file, and database operations
+- **Index columns** - Add indexes for frequently queried/filtered columns
+- **Cache expensive** - Cache results of expensive computations or API calls
+- **Measure first** - Profile before optimizing; don't guess at bottlenecks
+
+## Environment & Configuration
+
+- **No hardcoded secrets** - Use environment variables or secret managers
+- **No hardcoded URLs** - Base URLs, API endpoints should be configurable
+- **Validate at startup** - Check required config exists before app runs
+- **Document all vars** - Every env var in .env.example with descriptions
+- **Sensible defaults** - Provide defaults where safe (not for secrets)
+- **Environment parity** - Dev/staging/prod should differ only in config, not code
+
+## External Services & APIs
+
+- **Always set timeouts** - Network calls without timeouts can hang forever
+- **Handle failures** - External services will fail; have a fallback strategy
+- **Retry transient errors** - 5xx, timeouts, connection errors with backoff
+- **Don't retry 4xx** - Client errors won't succeed on retry
+- **Circuit breakers** - For critical services, prevent cascade failures
+- **Validate responses** - Don't trust external data; validate before use
 
 ## Prohibited Destructive Operations
 
@@ -149,9 +236,33 @@ This helps future developers (and AI) understand the codebase.
 - **Commit incrementally** - For long tasks, commit working increments. Don't wait until everything is done
 - **Revert on failure** - If changes break things, revert to last working state before trying alternatives
 
-## Session End
+## Session End Protocol
 
-At session end, offer to summarize what was accomplished and what tasks remain.
+When ending a session or when the user seems to be wrapping up:
+
+1. **Save all work** - Commit and push any uncommitted changes
+2. **Verify tests pass** - Run test suite to ensure nothing is broken
+3. **Summarize accomplishments** - Brief list of what was completed
+4. **List remaining tasks** - Any TODOs, known issues, or next steps
+5. **Note tech debt** - Any shortcuts taken that should be addressed later
+6. **Flag concerns** - Security issues, performance concerns, or architectural questions
+
+Example session end:
+```
+Session Summary:
+✓ Implemented user authentication (feat: add login/logout)
+✓ Added password reset flow (feat: password reset email)
+✓ Fixed session timeout bug (fix: extend session to 24h)
+
+Remaining:
+- Add rate limiting to login endpoint
+- Write tests for password reset flow
+
+Tech debt:
+- Hardcoded email templates (should use template engine)
+
+All changes committed and pushed.
+```
 
 ## Spec Kit Ownership
 
