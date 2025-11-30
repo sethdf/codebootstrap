@@ -146,10 +146,20 @@ EOF
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         if command -v gh &> /dev/null; then
-            echo "Creating private repo: $name"
+            # Ask for visibility
+            read -p "Make repo public? [y/N] " -n 1 -r
+            echo
+            local visibility="--private"
+            local visibility_label="private"
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                visibility="--public"
+                visibility_label="public"
+            fi
+
+            echo "Creating $visibility_label repo: $name"
             cd "$project_dir"
-            gh repo create "$name" --private --source=. --push
-            _cb_green "✓ GitHub repo created"
+            gh repo create "$name" $visibility --source=. --push
+            _cb_green "✓ GitHub repo created ($visibility_label)"
         else
             _cb_yellow "GitHub CLI not available. Install 'gh' to create repos."
         fi
