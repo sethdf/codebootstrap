@@ -340,7 +340,7 @@ main() {
 
 # cb - Enter the CodeBootstrap container with persistent tmux session
 cb() {
-    local container=$(docker ps -qf "name=codebootstrap")
+    local container=$(docker ps -qf "name=vsc-codebootstrap")
     if [ -z "$container" ]; then
         echo "Container not running. Starting..."
         cd ~/codebootstrap
@@ -349,7 +349,7 @@ cb() {
             sudo npm install -g @devcontainers/cli
         fi
         devcontainer up --workspace-folder .
-        container=$(docker ps -qf "name=codebootstrap")
+        container=$(docker ps -qf "name=vsc-codebootstrap")
     fi
     # Attach to existing tmux session or create new one
     # -A = attach if exists, create if not
@@ -358,7 +358,7 @@ cb() {
 
 # cb-raw - Enter container without tmux (for debugging)
 cb-raw() {
-    local container=$(docker ps -qf "name=codebootstrap")
+    local container=$(docker ps -qf "name=vsc-codebootstrap")
     if [ -n "$container" ]; then
         docker exec -it "$container" bash
     else
@@ -368,7 +368,7 @@ cb-raw() {
 
 # cb-start - Start container in background (for remote machines)
 cb-start() {
-    local container=$(docker ps -qf "name=codebootstrap")
+    local container=$(docker ps -qf "name=vsc-codebootstrap")
     if [ -n "$container" ]; then
         echo "Container already running"
     else
@@ -384,7 +384,7 @@ cb-start() {
 
 # cb-stop - Stop the container
 cb-stop() {
-    local container=$(docker ps -qf "name=codebootstrap")
+    local container=$(docker ps -qf "name=vsc-codebootstrap")
     if [ -n "$container" ]; then
         docker stop "$container"
         echo "Container stopped"
@@ -395,10 +395,10 @@ cb-stop() {
 
 # cb-status - Check container status
 cb-status() {
-    local container=$(docker ps -qf "name=codebootstrap")
+    local container=$(docker ps -qf "name=vsc-codebootstrap")
     if [ -n "$container" ]; then
         echo "CodeBootstrap container: RUNNING"
-        docker ps -f "name=codebootstrap" --format "  ID: {{.ID}}\n  Created: {{.RunningFor}}\n  Status: {{.Status}}"
+        docker ps -f "name=vsc-codebootstrap" --format "  ID: {{.ID}}\n  Created: {{.RunningFor}}\n  Status: {{.Status}}"
     else
         echo "CodeBootstrap container: STOPPED"
     fi
