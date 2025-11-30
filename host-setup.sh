@@ -311,6 +311,87 @@ main() {
         success "CodeBootstrap cloned to $codebootstrap_dir"
     fi
 
+    # ============================================
+    # Install CLI shortcuts on HOST
+    # ============================================
+    echo ""
+    echo "========================================"
+    echo "Installing CLI Shortcuts"
+    echo "========================================"
+    echo ""
+
+    # Add cb function to host's bashrc
+    if ! grep -q "cb()" ~/.bashrc 2>/dev/null; then
+        cat >> ~/.bashrc << 'HOSTEOF'
+
+# ============================================
+# CodeBootstrap CLI shortcuts (for SSH/mobile access)
+# ============================================
+
+# cb - Enter the CodeBootstrap container (starts if needed)
+cb() {
+    local container=$(docker ps -qf "name=codebootstrap")
+    if [ -n "$container" ]; then
+        docker exec -it "$container" bash
+    else
+        echo "Container not running. Starting..."
+        cd ~/codebootstrap
+        if command -v devcontainer &> /dev/null; then
+            devcontainer up --workspace-folder .
+            devcontainer exec --workspace-folder . bash
+        else
+            echo "Installing devcontainer CLI..."
+            npm install -g @devcontainers/cli
+            devcontainer up --workspace-folder .
+            devcontainer exec --workspace-folder . bash
+        fi
+    fi
+}
+
+# cb-start - Start container in background (for remote machines)
+cb-start() {
+    local container=$(docker ps -qf "name=codebootstrap")
+    if [ -n "$container" ]; then
+        echo "Container already running"
+    else
+        echo "Starting CodeBootstrap container..."
+        cd ~/codebootstrap
+        if ! command -v devcontainer &> /dev/null; then
+            npm install -g @devcontainers/cli
+        fi
+        devcontainer up --workspace-folder .
+        echo "Container started. Use 'cb' to enter."
+    fi
+}
+
+# cb-stop - Stop the container
+cb-stop() {
+    local container=$(docker ps -qf "name=codebootstrap")
+    if [ -n "$container" ]; then
+        docker stop "$container"
+        echo "Container stopped"
+    else
+        echo "Container not running"
+    fi
+}
+
+# cb-status - Check container status
+cb-status() {
+    local container=$(docker ps -qf "name=codebootstrap")
+    if [ -n "$container" ]; then
+        echo "CodeBootstrap container: RUNNING"
+        docker ps -f "name=codebootstrap" --format "  ID: {{.ID}}\n  Created: {{.RunningFor}}\n  Status: {{.Status}}"
+    else
+        echo "CodeBootstrap container: STOPPED"
+    fi
+}
+HOSTEOF
+        success "CLI shortcuts added to ~/.bashrc"
+        info "Commands: cb, cb-start, cb-stop, cb-status"
+    else
+        success "CLI shortcuts already installed"
+    fi
+
     echo ""
     echo "========================================"
     echo "Setup Complete!"

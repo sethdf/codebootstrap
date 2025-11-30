@@ -576,6 +576,149 @@ sudo systemctl status tailscaled
 
 ---
 
+## Mobile / iOS Access
+
+Access CodeBootstrap from your iPhone using an SSH app + Tailscale.
+
+### Quick Start (iPhone)
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  iPhone                                                   │
+│  ┌────────────────────┐     ┌─────────────────────────┐ │
+│  │ Tailscale app      │     │ Termius / Blink Shell   │ │
+│  │ (VPN connection)   │────▶│ ssh user@dev-server     │ │
+│  └────────────────────┘     │ $ cb                    │ │
+│                             │ $ c  ← Claude Code      │ │
+│                             └─────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Step 1: Install Apps on iPhone
+
+1. **Tailscale** - [App Store](https://apps.apple.com/app/tailscale/id1470499037)
+2. **SSH App** - Choose one:
+   - **Termius** (free tier available) - [App Store](https://apps.apple.com/app/termius/id549039908)
+   - **Blink Shell** (paid, excellent) - [App Store](https://apps.apple.com/app/blink-shell/id1594898306)
+   - **Prompt 3** (paid) - [App Store](https://apps.apple.com/app/prompt-3/id1594420480)
+
+### Step 2: Connect Tailscale on iPhone
+
+1. Open Tailscale app
+2. Sign in with same account as your remote machine
+3. Toggle VPN on
+4. Your devices are now connected
+
+### Step 3: SSH and Enter Container
+
+In your SSH app:
+
+```bash
+# Connect to your remote machine
+ssh user@dev-server      # or ssh user@100.x.x.x
+
+# Enter the CodeBootstrap container (one command!)
+cb
+
+# You're now in the container - start coding
+c                        # Start Claude Code
+p my-project            # Switch to a project
+```
+
+### Host CLI Commands
+
+These commands are installed on your **host machine** by `host-setup.sh`:
+
+| Command | Description |
+|---------|-------------|
+| `cb` | Enter container (starts it if needed) |
+| `cb-start` | Start container in background |
+| `cb-stop` | Stop the container |
+| `cb-status` | Check if container is running |
+
+### Container Welcome Message
+
+When you enter via `cb`, you'll see a quick reference:
+
+```
+┌─────────────────────────────────────────┐
+│         CodeBootstrap Container         │
+└─────────────────────────────────────────┘
+
+  AI Tools    c = Claude   codex   gemini
+  Projects    p = list/switch   new-project <name>
+  Status      codebootstrap-status
+```
+
+### Auto-Start Container on Boot (Optional)
+
+For a remote dev server, you may want the container to start automatically when the machine boots.
+
+**Option A: Systemd Service (Recommended)**
+
+Create `/etc/systemd/system/codebootstrap.service`:
+
+```ini
+[Unit]
+Description=CodeBootstrap Dev Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=your-username
+WorkingDirectory=/home/your-username/codebootstrap
+ExecStart=/usr/local/bin/devcontainer up --workspace-folder .
+ExecStop=/usr/bin/docker stop $(docker ps -qf "name=codebootstrap")
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable it:
+```bash
+sudo systemctl enable codebootstrap
+sudo systemctl start codebootstrap
+```
+
+**Option B: Cron @reboot**
+
+```bash
+crontab -e
+# Add this line:
+@reboot cd ~/codebootstrap && devcontainer up --workspace-folder . > /tmp/cb-start.log 2>&1
+```
+
+### Mobile Workflow Tips
+
+**Typing efficiency:**
+- Use short aliases: `c`, `p`, `gs`, `gd`
+- Set up SSH key in your iOS app to avoid typing passwords
+- Use Tailscale MagicDNS for short hostnames
+
+**Session persistence:**
+- Consider running `tmux` or `screen` inside the container
+- If your SSH disconnects, your Claude session continues
+- Reconnect and `tmux attach` to resume
+
+```bash
+# Inside container - start a tmux session
+tmux new -s dev
+
+# If disconnected, reattach
+tmux attach -t dev
+```
+
+**Quick project access:**
+```bash
+cb                    # Enter container
+p my-project         # Jump to project
+c                    # Start Claude
+```
+
+---
+
 ## Troubleshooting
 
 ### "Reopen in Container" not appearing
