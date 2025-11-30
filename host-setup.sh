@@ -232,7 +232,12 @@ main() {
         if docker info &> /dev/null; then
             success "Docker: Running"
         else
-            warn "Docker: Installed but not running. Start Docker Desktop."
+            if [[ "$os" == "macos" ]] || detect_wsl; then
+                warn "Docker: Installed but not running. Start Docker Desktop."
+            else
+                warn "Docker: Installed but not running."
+                echo "  Fix: sudo systemctl start docker"
+            fi
         fi
     else
         error "Docker: Not installed"
