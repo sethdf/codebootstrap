@@ -98,45 +98,9 @@ __pycache__/
 EOF
     fi
 
-    # Copy CodeBootstrap additions if available
-    local templates_dir="/workspaces/codebootstrap/templates/codebootstrap-additions"
-    if [ -d "$templates_dir" ]; then
-        echo "Adding CodeBootstrap configuration..."
-
-        # Copy devcontainer config
-        if [ -f "$templates_dir/devcontainer-json.json" ]; then
-            mkdir -p "$project_dir/.devcontainer"
-            cp "$templates_dir/devcontainer-json.json" "$project_dir/.devcontainer/devcontainer.json"
-        fi
-
-        # Copy .editorconfig
-        if [ -f "$templates_dir/editorconfig" ]; then
-            cp "$templates_dir/editorconfig" "$project_dir/.editorconfig"
-        fi
-
-        # Append context to AI context files
-        if [ -f "$templates_dir/context-append.md" ]; then
-            local context_content=$(cat "$templates_dir/context-append.md")
-
-            # Append to CLAUDE.md (for Claude)
-            if [ -f "$project_dir/CLAUDE.md" ]; then
-                echo "" >> "$project_dir/CLAUDE.md"
-                echo "$context_content" >> "$project_dir/CLAUDE.md"
-            fi
-
-            # Append to AGENTS.md (for Codex)
-            if [ -f "$project_dir/AGENTS.md" ]; then
-                echo "" >> "$project_dir/AGENTS.md"
-                echo "$context_content" >> "$project_dir/AGENTS.md"
-            fi
-
-            # Append to GEMINI.md (for Gemini)
-            if [ -f "$project_dir/GEMINI.md" ]; then
-                echo "" >> "$project_dir/GEMINI.md"
-                echo "$context_content" >> "$project_dir/GEMINI.md"
-            fi
-        fi
-    fi
+    # Add CodeBootstrap AI context files and configuration
+    cd "$project_dir"
+    bootstrap-project "$project_dir"
 
     _cb_green "✓ Project created at $project_dir"
 
