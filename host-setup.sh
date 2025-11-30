@@ -269,6 +269,12 @@ main() {
 
     # Check if VS Code is available
     if command -v code &> /dev/null; then
+        # Install Dev Containers extension
+        info "Installing VS Code Dev Containers extension..."
+        code --install-extension ms-vscode-remote.remote-containers --force 2>/dev/null
+        success "Dev Containers extension installed"
+
+        echo ""
         echo "Opening VS Code..."
         echo ""
         echo "When VS Code opens, click 'Reopen in Container'"
