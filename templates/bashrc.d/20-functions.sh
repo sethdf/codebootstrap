@@ -60,6 +60,34 @@ new-project() {
 [Important files and their purposes]
 EOF
 
+        # Create AGENTS.md for Codex
+        cat > AGENTS.md << 'EOF'
+# Project Context
+
+## Overview
+[Describe your project here]
+
+## Tech Stack
+[List technologies used]
+
+## Key Files
+[Important files and their purposes]
+EOF
+
+        # Create GEMINI.md for Gemini
+        cat > GEMINI.md << 'EOF'
+# Project Context
+
+## Overview
+[Describe your project here]
+
+## Tech Stack
+[List technologies used]
+
+## Key Files
+[Important files and their purposes]
+EOF
+
         cat > .gitignore << 'EOF'
 node_modules/
 __pycache__/
@@ -131,6 +159,137 @@ EOF
     echo "Next steps:"
     echo "  cd $project_dir"
     echo "  claude   # or codex, gemini"
+}
+
+# ============================================
+# bootstrap-project - Add CodeBootstrap additions to any project
+# ============================================
+bootstrap-project() {
+    local project_dir="${1:-.}"
+
+    # Convert to absolute path
+    project_dir=$(cd "$project_dir" && pwd)
+
+    if [ ! -d "$project_dir/.git" ]; then
+        _cb_yellow "Warning: Not a git repository. Initialize with 'git init' first."
+    fi
+
+    echo "Adding CodeBootstrap configuration to: $project_dir"
+
+    local templates_dir="/workspaces/codebootstrap/templates/codebootstrap-additions"
+
+    if [ ! -d "$templates_dir" ]; then
+        _cb_red "Error: CodeBootstrap templates not found at $templates_dir"
+        return 1
+    fi
+
+    # Copy devcontainer config
+    if [ -f "$templates_dir/devcontainer-json.json" ]; then
+        mkdir -p "$project_dir/.devcontainer"
+        cp "$templates_dir/devcontainer-json.json" "$project_dir/.devcontainer/devcontainer.json"
+        _cb_green "  ✓ Added .devcontainer/devcontainer.json"
+    fi
+
+    # Copy .editorconfig
+    if [ -f "$templates_dir/editorconfig" ]; then
+        cp "$templates_dir/editorconfig" "$project_dir/.editorconfig"
+        _cb_green "  ✓ Added .editorconfig"
+    fi
+
+    # Add context to AI files
+    if [ -f "$templates_dir/context-append.md" ]; then
+        local context_content=$(cat "$templates_dir/context-append.md")
+
+        # CLAUDE.md
+        if [ -f "$project_dir/CLAUDE.md" ]; then
+            if ! grep -q "## Git Workflow" "$project_dir/CLAUDE.md"; then
+                echo "" >> "$project_dir/CLAUDE.md"
+                echo "$context_content" >> "$project_dir/CLAUDE.md"
+                _cb_green "  ✓ Appended guidelines to CLAUDE.md"
+            else
+                _cb_yellow "  ⚠ CLAUDE.md already has guidelines"
+            fi
+        else
+            cat > "$project_dir/CLAUDE.md" << 'CLAUDEEOF'
+# Project Context
+
+## Overview
+[Describe your project here]
+
+## Tech Stack
+[List technologies used]
+
+## Key Files
+[Important files and their purposes]
+CLAUDEEOF
+            echo "" >> "$project_dir/CLAUDE.md"
+            echo "$context_content" >> "$project_dir/CLAUDE.md"
+            _cb_green "  ✓ Created CLAUDE.md with guidelines"
+        fi
+
+        # AGENTS.md (Codex)
+        if [ -f "$project_dir/AGENTS.md" ]; then
+            if ! grep -q "## Git Workflow" "$project_dir/AGENTS.md"; then
+                echo "" >> "$project_dir/AGENTS.md"
+                echo "$context_content" >> "$project_dir/AGENTS.md"
+                _cb_green "  ✓ Appended guidelines to AGENTS.md"
+            else
+                _cb_yellow "  ⚠ AGENTS.md already has guidelines"
+            fi
+        else
+            cat > "$project_dir/AGENTS.md" << 'AGENTSEOF'
+# Project Context
+
+## Overview
+[Describe your project here]
+
+## Tech Stack
+[List technologies used]
+
+## Key Files
+[Important files and their purposes]
+AGENTSEOF
+            echo "" >> "$project_dir/AGENTS.md"
+            echo "$context_content" >> "$project_dir/AGENTS.md"
+            _cb_green "  ✓ Created AGENTS.md with guidelines"
+        fi
+
+        # GEMINI.md
+        if [ -f "$project_dir/GEMINI.md" ]; then
+            if ! grep -q "## Git Workflow" "$project_dir/GEMINI.md"; then
+                echo "" >> "$project_dir/GEMINI.md"
+                echo "$context_content" >> "$project_dir/GEMINI.md"
+                _cb_green "  ✓ Appended guidelines to GEMINI.md"
+            else
+                _cb_yellow "  ⚠ GEMINI.md already has guidelines"
+            fi
+        else
+            cat > "$project_dir/GEMINI.md" << 'GEMINIEOF'
+# Project Context
+
+## Overview
+[Describe your project here]
+
+## Tech Stack
+[List technologies used]
+
+## Key Files
+[Important files and their purposes]
+GEMINIEOF
+            echo "" >> "$project_dir/GEMINI.md"
+            echo "$context_content" >> "$project_dir/GEMINI.md"
+            _cb_green "  ✓ Created GEMINI.md with guidelines"
+        fi
+    fi
+
+    echo ""
+    _cb_green "✓ CodeBootstrap additions applied"
+    echo ""
+    echo "Added:"
+    echo "  - AI context files (CLAUDE.md, AGENTS.md, GEMINI.md)"
+    echo "  - Git workflow & safety guidelines"
+    echo "  - DevContainer configuration"
+    echo "  - Editor configuration"
 }
 
 # ============================================
@@ -218,6 +377,15 @@ clone-project() {
     cd "$project_dir"
 
     _cb_green "✓ Project cloned to $project_dir"
+
+    # Offer to add CodeBootstrap additions
+    echo ""
+    read -p "Add CodeBootstrap AI guidelines? [Y/n] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+        bootstrap-project "$project_dir"
+    fi
+
     echo ""
     echo "Next steps:"
     echo "  claude   # or codex, gemini"
