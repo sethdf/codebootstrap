@@ -312,6 +312,73 @@ If the volume was accidentally deleted, you'll need to re-clone your projects.
 | `gpu` | git push |
 | `gcm "msg"` | git commit -m |
 
+### Git Save Commands
+
+| Command | Description |
+|---------|-------------|
+| `save` | Commit all + push (auto-generates message) |
+| `save "msg"` | Commit all + push with message |
+| `sync` | Pull latest, push local (handles stash) |
+| `push` | Push to remote |
+| `wip` | Quick "WIP" commit + push |
+
+---
+
+## Git Workflow
+
+CodeBootstrap enforces automatic saving to GitHub through AI instructions and convenience commands.
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     AI CODING SESSION                        │
+│                                                              │
+│  You: "Add a login feature"                                 │
+│                                                              │
+│  AI: [implements feature]                                   │
+│      [commits: "feat: add login feature"]                   │
+│      [pushes to GitHub]                                     │
+│                                                              │
+│  You: "Now add password reset"                              │
+│                                                              │
+│  AI: [implements feature]                                   │
+│      [commits: "feat: add password reset"]                  │
+│      [pushes to GitHub]                                     │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### AI Rules (Applied to All Tools)
+
+When you create a project with `new-project`, these rules are added to CLAUDE.md, AGENTS.md (Codex), and GEMINI.md:
+
+- **Commit at logical points** - After completing features, fixes, or related changes
+- **Always push** - Changes must be pushed to GitHub after committing
+- **Use conventional commits** - `feat:`, `fix:`, `docs:`, etc.
+- **Descriptive messages** - Explain *why*, not just *what*
+
+### Manual Save
+
+If you want to force a save at any point:
+
+```bash
+save "checkpoint before refactor"
+```
+
+Or for quick work-in-progress:
+
+```bash
+wip     # commits "WIP" and pushes
+```
+
+### Why This Matters
+
+- **Mobile access** - Changes on desktop are immediately available on iPhone
+- **No lost work** - Disconnect from phone? Work is already saved
+- **Multi-device** - Seamlessly switch between machines
+- **History** - Every change tracked in git
+
 ---
 
 ## MCP Servers

@@ -1,5 +1,26 @@
 
-## Commit Conventions
+## Git Workflow (IMPORTANT)
+
+**Always commit and push after completing work.** This ensures changes are saved to GitHub and accessible from any device.
+
+### When to Commit
+
+Commit at logical completion points:
+- After completing a feature or fix
+- After making a set of related changes
+- Before switching to a different task
+- When asked to save/commit/push
+- At the end of a work session
+
+### How to Commit
+
+1. Stage all changes: `git add -A`
+2. Commit with descriptive message using conventional format (see below)
+3. Push to remote: `git push`
+
+Or use the shortcut: `save "your commit message"`
+
+### Commit Conventions
 
 Use conventional commits format:
 - `feat:` new feature
@@ -10,6 +31,12 @@ Use conventional commits format:
 - `chore:` maintenance, dependencies, config
 
 Keep commits atomic - one logical change per commit. Write meaningful commit messages that explain *why*, not just *what*.
+
+### Push Requirements
+
+**Always push to GitHub after committing.** The user may be working from multiple devices (including mobile) and needs changes synced.
+
+Exception: If push fails due to conflicts, inform the user and suggest running `sync` to resolve.
 
 ## Security
 

@@ -517,6 +517,108 @@ today() {
 }
 
 # ============================================
+# save - Commit and push all changes (for mobile/quick saves)
+# ============================================
+save() {
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        _cb_red "Error: Not in a git repository"
+        return 1
+    fi
+
+    # Check if there are changes
+    if [ -z "$(git status --porcelain)" ]; then
+        _cb_yellow "No changes to save"
+        return 0
+    fi
+
+    # Generate commit message
+    local msg="${1:-auto-save: $(date '+%Y-%m-%d %H:%M')}"
+
+    git add -A
+    git commit -m "$msg"
+
+    # Push if remote exists
+    if git remote | grep -q .; then
+        git push
+        _cb_green "✓ Saved and pushed"
+    else
+        _cb_green "✓ Saved locally (no remote configured)"
+    fi
+}
+
+# ============================================
+# sync - Pull latest and push local changes
+# ============================================
+sync() {
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        _cb_red "Error: Not in a git repository"
+        return 1
+    fi
+
+    # Check for remote
+    if ! git remote | grep -q .; then
+        _cb_yellow "No remote configured"
+        return 1
+    fi
+
+    echo "Syncing with remote..."
+
+    # Stash any uncommitted changes
+    local stashed=false
+    if [ -n "$(git status --porcelain)" ]; then
+        git stash push -m "sync-stash"
+        stashed=true
+    fi
+
+    # Pull with rebase
+    if git pull --rebase; then
+        _cb_green "✓ Pulled latest changes"
+    else
+        _cb_red "✗ Pull failed - resolve conflicts"
+        [ "$stashed" = true ] && echo "  Your changes are stashed. Run 'git stash pop' after resolving."
+        return 1
+    fi
+
+    # Push local commits
+    if git push; then
+        _cb_green "✓ Pushed local commits"
+    else
+        _cb_red "✗ Push failed"
+        return 1
+    fi
+
+    # Restore stashed changes
+    if [ "$stashed" = true ]; then
+        git stash pop
+        _cb_green "✓ Restored uncommitted changes"
+    fi
+
+    _cb_green "✓ Sync complete"
+}
+
+# ============================================
+# push - Quick push to remote
+# ============================================
+push() {
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        _cb_red "Error: Not in a git repository"
+        return 1
+    fi
+
+    if ! git remote | grep -q .; then
+        _cb_yellow "No remote configured"
+        return 1
+    fi
+
+    if git push; then
+        _cb_green "✓ Pushed to remote"
+    else
+        _cb_red "✗ Push failed"
+        return 1
+    fi
+}
+
+# ============================================
 # wip - Quick work-in-progress commit
 # ============================================
 wip() {
@@ -528,6 +630,12 @@ wip() {
     git add -A
     git commit -m "WIP"
     _cb_green "✓ WIP commit created"
+
+    # Also push if remote exists
+    if git remote | grep -q .; then
+        git push
+        _cb_green "✓ Pushed to remote"
+    fi
 }
 
 # ============================================
