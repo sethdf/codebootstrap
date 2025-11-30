@@ -249,21 +249,41 @@ main() {
     fi
 
     echo ""
+
+    # Clone codebootstrap if not already present
+    local codebootstrap_dir="$HOME/codebootstrap"
+
+    if [ -d "$codebootstrap_dir" ]; then
+        success "CodeBootstrap already cloned at $codebootstrap_dir"
+    else
+        info "Cloning CodeBootstrap..."
+        git clone https://github.com/sethdf/codebootstrap.git "$codebootstrap_dir"
+        success "CodeBootstrap cloned to $codebootstrap_dir"
+    fi
+
+    echo ""
     echo "========================================"
-    echo "Next Steps"
+    echo "Setup Complete!"
     echo "========================================"
     echo ""
-    echo "1. Install VS Code with Dev Containers extension"
-    echo "   https://code.visualstudio.com/"
-    echo ""
-    echo "2. Clone a project with devcontainer:"
-    echo "   git clone https://github.com/<owner>/codebootstrap.git"
-    echo "   cd codebootstrap"
-    echo "   code ."
-    echo ""
-    echo "3. Click 'Reopen in Container' when prompted"
-    echo ""
-    success "Host setup complete!"
+
+    # Check if VS Code is available
+    if command -v code &> /dev/null; then
+        echo "Opening VS Code..."
+        echo ""
+        echo "When VS Code opens, click 'Reopen in Container'"
+        echo ""
+        cd "$codebootstrap_dir" && code .
+    else
+        warn "VS Code not found. Install it from: https://code.visualstudio.com/"
+        echo ""
+        echo "After installing VS Code with Dev Containers extension:"
+        echo ""
+        echo "    cd $codebootstrap_dir"
+        echo "    code ."
+        echo ""
+        echo "Then click 'Reopen in Container' when prompted"
+    fi
 }
 
 main "$@"
