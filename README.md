@@ -383,6 +383,199 @@ Create `.claude/mcp-servers.json` in your project:
 
 ---
 
+## Remote Development with Tailscale
+
+Tailscale creates a secure mesh VPN between your devices, making it easy to code on remote machines from anywhere.
+
+### Architecture with Tailscale
+
+```
+┌─────────────────────────────────┐         ┌─────────────────────────────────┐
+│      YOUR LOCAL MACHINE         │         │      REMOTE DEV MACHINE         │
+│        (laptop/desktop)         │         │    (home server, cloud VM)      │
+│                                 │         │                                 │
+│  ┌───────────────────────────┐ │         │ ┌───────────────────────────┐   │
+│  │  VS Code                  │ │         │ │  Docker + CodeBootstrap   │   │
+│  │  + Remote-SSH extension   │ │  SSH    │ │  (devcontainer running)   │   │
+│  │                           │─┼─────────┼─│                           │   │
+│  └───────────────────────────┘ │  over   │ │  Claude, Codex, Gemini    │   │
+│                                 │Tailscale│ │  MCP servers, projects    │   │
+│  ┌───────────────────────────┐ │         │ └───────────────────────────┘   │
+│  │  Tailscale client         │ │         │                                 │
+│  │  (100.x.x.x)              │ │         │ ┌───────────────────────────┐   │
+│  └───────────────────────────┘ │         │ │  Tailscale client         │   │
+│                                 │         │ │  (100.x.x.x)              │   │
+└─────────────────────────────────┘         │ │  + Tailscale SSH enabled  │   │
+                                            │ └───────────────────────────┘   │
+                                            └─────────────────────────────────┘
+```
+
+### Step 1: Install Tailscale on Both Machines
+
+**On your local machine (where you'll code from):**
+
+```bash
+# macOS
+brew install tailscale
+# Then open Tailscale from Applications
+
+# Ubuntu/Debian
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+
+# Windows
+# Download from https://tailscale.com/download/windows
+```
+
+**On your remote machine (where CodeBootstrap will run):**
+
+```bash
+# Ubuntu/Debian (most common for servers)
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up --ssh
+#                  ↑
+#          Enables Tailscale SSH!
+```
+
+### Step 2: Enable Tailscale SSH on Remote Machine
+
+Tailscale SSH lets you SSH without managing keys - it uses your Tailscale identity.
+
+```bash
+# On the REMOTE machine, ensure SSH is enabled
+sudo tailscale up --ssh
+
+# Verify it's working
+tailscale status
+```
+
+You should see your machines listed with their Tailscale IPs (100.x.x.x).
+
+### Step 3: Configure Tailscale Admin Console
+
+1. Go to https://login.tailscale.com/admin/machines
+2. Find your remote machine
+3. Click the **...** menu → **Edit ACLs** or check **SSH** settings
+4. Ensure SSH is allowed for your user
+
+**Optional: Enable MagicDNS** (recommended)
+- Go to **DNS** tab in admin console
+- Enable **MagicDNS**
+- Now you can use hostnames instead of IPs: `ssh remote-server` instead of `ssh 100.x.x.x`
+
+### Step 4: Test SSH Connection
+
+From your local machine:
+
+```bash
+# Using Tailscale IP
+ssh user@100.x.x.x
+
+# Or with MagicDNS enabled (use machine name)
+ssh user@remote-server
+
+# Tailscale SSH (no keys needed!)
+ssh user@remote-server
+```
+
+### Step 5: Set Up CodeBootstrap on Remote Machine
+
+SSH into your remote machine and run the setup:
+
+```bash
+# Connect to remote machine
+ssh user@remote-server
+
+# Run CodeBootstrap setup
+curl -fsSL https://raw.githubusercontent.com/sethdf/codebootstrap/main/host-setup.sh | bash
+```
+
+### Step 6: Connect VS Code via Remote-SSH
+
+**Install Remote-SSH extension** (on your local VS Code):
+1. Open VS Code
+2. Install extension: `ms-vscode-remote.remote-ssh`
+
+**Connect to remote machine:**
+1. `Cmd/Ctrl+Shift+P` → "Remote-SSH: Connect to Host..."
+2. Enter: `user@remote-server` (or `user@100.x.x.x`)
+3. VS Code opens connected to remote machine
+4. Open folder: `~/codebootstrap`
+5. Click **"Reopen in Container"**
+
+Now you're running VS Code locally, connected to a devcontainer on your remote machine!
+
+### Workflow: Remote Development
+
+```
+Local Machine                    Remote Machine
+─────────────                    ──────────────
+VS Code              ──SSH──►    CodeBootstrap container
+(thin client)       Tailscale    - Claude Code
+                                 - All AI tools
+                                 - Your projects
+```
+
+**Daily workflow:**
+1. Open VS Code locally
+2. `Cmd/Ctrl+Shift+P` → "Remote-SSH: Connect to Host..." → `remote-server`
+3. Open `~/codebootstrap`
+4. "Reopen in Container"
+5. `p my-project` and start coding
+
+### SSH Config for Convenience
+
+Add to `~/.ssh/config` on your local machine:
+
+```
+Host dev
+    HostName remote-server    # Or 100.x.x.x
+    User your-username
+    ForwardAgent yes
+```
+
+Now connect with just:
+```bash
+ssh dev
+# Or in VS Code: connect to "dev"
+```
+
+### Tailscale + Codespaces Alternative
+
+If you don't want to manage a remote server, you can also:
+1. Use GitHub Codespaces (cloud-hosted devcontainer)
+2. Install Tailscale in the Codespace for accessing other Tailscale resources
+
+### Troubleshooting Tailscale
+
+**Can't connect via Tailscale SSH:**
+```bash
+# Check Tailscale status on remote
+tailscale status
+
+# Ensure SSH is enabled
+sudo tailscale up --ssh
+
+# Check if tailscaled is running
+sudo systemctl status tailscaled
+```
+
+**MagicDNS not resolving:**
+- Ensure MagicDNS is enabled in admin console
+- Try flushing DNS: `sudo systemd-resolve --flush-caches`
+- Fall back to IP: `ssh user@100.x.x.x`
+
+**Permission denied:**
+- Check Tailscale ACLs in admin console
+- Ensure your user has SSH access in ACL policy
+
+**VS Code Remote-SSH slow:**
+- Tailscale uses direct connections when possible
+- If going through relay (DERP), check firewall/NAT settings
+- Run `tailscale netcheck` to diagnose
+
+---
+
 ## Troubleshooting
 
 ### "Reopen in Container" not appearing
