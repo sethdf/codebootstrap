@@ -124,6 +124,51 @@ install_docker() {
 }
 
 # ============================================
+# VS Code installation
+# ============================================
+install_vscode() {
+    local os="$1"
+
+    # Check if already installed
+    if command -v code &> /dev/null; then
+        success "VS Code already installed"
+        return 0
+    fi
+
+    info "Installing VS Code..."
+
+    case "$os" in
+        macos)
+            if command -v brew &> /dev/null; then
+                brew install --cask visual-studio-code
+            else
+                warn "Please install VS Code manually from: https://code.visualstudio.com/"
+                return 1
+            fi
+            ;;
+        ubuntu|debian)
+            wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
+            sudo install -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/keyrings/
+            echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y code
+            rm /tmp/packages.microsoft.gpg
+            ;;
+        fedora|rhel|centos)
+            sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+            echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
+            sudo dnf install -y code
+            ;;
+        *)
+            warn "Please install VS Code manually from: https://code.visualstudio.com/"
+            return 1
+            ;;
+    esac
+
+    success "VS Code installed"
+}
+
+# ============================================
 # GitHub CLI installation
 # ============================================
 install_gh() {
@@ -178,6 +223,7 @@ main() {
     echo "This script installs:"
     echo "  • Docker (for running devcontainers)"
     echo "  • GitHub CLI (for authentication)"
+    echo "  • VS Code (with Dev Containers extension)"
     echo ""
 
     local os=$(detect_os)
@@ -196,6 +242,11 @@ main() {
 
     # Install GitHub CLI
     install_gh "$os"
+
+    echo ""
+
+    # Install VS Code
+    install_vscode "$os"
 
     echo ""
 
